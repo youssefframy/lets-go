@@ -1,5 +1,8 @@
 package database
 
+// This is going to be the logic that directly communicates with
+// our database
+
 import (
 	"lambda-func/types"
 
@@ -16,7 +19,7 @@ type DynamoDBClient struct {
 	databaseStore *dynamodb.DynamoDB
 }
 
-func NewDynamoDBClient() DynamoDBClient {
+func NewDynamoDB() DynamoDBClient {
 	dbSession := session.Must(session.NewSession())
 	db := dynamodb.New(dbSession)
 
@@ -25,12 +28,11 @@ func NewDynamoDBClient() DynamoDBClient {
 	}
 }
 
-// Does this user exists in the database?
-func (u DynamoDBClient) DoesUserExist(username string) (bool, error) {
+func (u *DynamoDBClient) DoesUserExist(username string) (bool, error) {
 	result, err := u.databaseStore.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String("Users"),
+		TableName: aws.String(TABLE_NAME),
 		Key: map[string]*dynamodb.AttributeValue{
-			username: {
+			"username": {
 				S: aws.String(username),
 			},
 		},
@@ -47,10 +49,7 @@ func (u DynamoDBClient) DoesUserExist(username string) (bool, error) {
 	return true, nil
 }
 
-
-// How do I insert a new record into Dynamo 
-func (u DynamoDBClient) InsertUser(user types.RegisterUser) error{
-	// assemble the item
+func (u *DynamoDBClient) InsertUser(user types.RegisterUser) error {
 	item := &dynamodb.PutItemInput{
 		TableName: aws.String(TABLE_NAME),
 		Item: map[string]*dynamodb.AttributeValue{
@@ -60,12 +59,11 @@ func (u DynamoDBClient) InsertUser(user types.RegisterUser) error{
 			"password": {
 				S: aws.String(user.Password),
 			},
-	},
-}
+		},
+	}
 
-	// insert the item
+	// we want to actually insert the item
 	_, err := u.databaseStore.PutItem(item)
-
 	if err != nil {
 		return err
 	}

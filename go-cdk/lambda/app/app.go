@@ -10,7 +10,7 @@ type App struct {
 }
 
 func NewApp() App {
-	db := database.NewDynamoDBClient()
+	db := database.NewDynamoDB()
 	apiHandler := api.NewApiHandler(db) 
 
 	return App{
