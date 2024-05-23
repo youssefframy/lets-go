@@ -39,6 +39,7 @@ func NewGoCdkStack(scope constructs.Construct, id string, props *GoCdkStackProps
 	table.GrantReadWriteData(myFunction)
 
 	api := awsapigateway.NewRestApi(stack, jsii.String("myAPIGateway"), &awsapigateway.RestApiProps{
+		CloudWatchRole: jsii.Bool(true),
 		DefaultCorsPreflightOptions: &awsapigateway.CorsOptions{
 			AllowHeaders: jsii.Strings("Content-Type", "Authorization"),
 			AllowMethods: jsii.Strings("OPTIONS", "GET", "POST", "PUT", "DELETE"),
